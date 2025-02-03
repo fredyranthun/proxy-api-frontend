@@ -9,6 +9,7 @@ interface AppState {
   nextPage: number | null;
   prevPage: number | null;
   queryHistory: string[];
+  searchTerm: string;
 }
 
 const initialState: AppState = {
@@ -19,6 +20,7 @@ const initialState: AppState = {
   nextPage: null,
   prevPage: null,
   queryHistory: [],
+  searchTerm: "",
 };
 
 const appSlice = createSlice({
@@ -49,12 +51,16 @@ const appSlice = createSlice({
       state.totalPages = action.payload.pagination.totalPages;
       state.nextPage = action.payload.pagination.nextPage;
       state.prevPage = action.payload.pagination.prevPage;
+      state.searchTerm = "";
     },
     updateQueryHistory(state, action: PayloadAction<string[]>) {
       state.queryHistory = action.payload;
     },
     setQueryHistory(state, action: PayloadAction<string[]>) {
       state.queryHistory = action.payload;
+    },
+    setSearchTerm(state, action: PayloadAction<string>) {
+      state.searchTerm = action.payload;
     },
     addQueryToHistory(state, action: PayloadAction<string>) {
       if (!state.queryHistory.includes(action.payload)) {
@@ -80,6 +86,7 @@ export const {
   setResults,
   setCurrentPage,
   setTotalPages,
+  setSearchTerm,
   updateSearchResults,
   updateQueryHistory,
   setQueryHistory,

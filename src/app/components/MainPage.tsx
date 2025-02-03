@@ -13,6 +13,7 @@ export default function MainPage() {
   const [query, setQuery] = useState("");
   const { results, currentPage, totalPages, queryHistory } = useAppSelector((state) => state.app);
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [errorAlertVisible, setErrorAlertVisible] = useState(false);
 
   useEffect(() => {
     dispatch(loadQueryHistory());
@@ -20,12 +21,19 @@ export default function MainPage() {
 
   const searchResults = async (searchQuery: string, page = 1) => {
     try {
-      const response = await fetch(`http://localhost:4000/results?q=${searchQuery}&page=${page}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/results?q=${searchQuery}&page=${page}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch results");
+      }
       const json = await response.json();
       dispatch(updateSearchResults(json));
       dispatch(addQueryToHistory(searchQuery));
     } catch (error) {
       console.error("Error fetching results:", error);
+      setErrorAlertVisible(true);
+      setTimeout(() => {
+        setErrorAlertVisible(false);
+      }, 5000);
     }
   };
 
@@ -85,6 +93,9 @@ export default function MainPage() {
               <SearchForm onSearch={handleSearch} initialQuery={query} />
             </div>
           </div>
+          {errorAlertVisible && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">Error fetching results. Please try again.</div>
+          )}
           {results.length > 0 && (
             <>
               <ResultsList results={results} />
